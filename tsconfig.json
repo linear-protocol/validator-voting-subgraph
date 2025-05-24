@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "moduleResolution": "node"
+  },
+  "extend": "./node_modules/@graphprotocol/graph-ts/tsconfig.json"
+}

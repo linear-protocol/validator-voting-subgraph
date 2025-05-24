@@ -1,0 +1,7 @@
+type Validator @entity(immutable: false) {
+   id: ID!
+   accountId: String!
+   isVoted: Boolean!
+   lastVoteTimestamp: BigInt!
+   lastVoteReceiptHash: String
+}

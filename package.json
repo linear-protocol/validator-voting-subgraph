@@ -1,0 +1,30 @@
+{
+  "scripts": {
+    "deploy:testnet": "pnpm config:testnet && pnpm codegen && pnpm deploysubgraph",
+    "deploy:mainnet": "pnpm config:mainnet && pnpm codegen && pnpm deploysubgraph",
+    "config:testnet": "mustache config/testnet.json subgraph.template.yaml > subgraph.yaml",
+    "config:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
+    "codegen": "graph codegen",
+    "deploysubgraph": "env-cmd pnpm deploysubgraph:studio",
+    "deploysubgraph:studio": "graph deploy ${SLUG} --deploy-key ${DEPLOY_KEY}",
+    "build": "graph build",
+    "lint": "eslint '{src,examples}/**/*.ts' '*.mjs' --fix",
+    "prettier": "prettier '{src,examples}/**/*.ts' '*.mjs' --write --list-different",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "env-cmd": "^10.1.0",
+    "eslint": "^9.23.0",
+    "husky": "^9.1.6",
+    "mustache": "^4.2.0",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.27.0"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.38.1"
+  }
+}

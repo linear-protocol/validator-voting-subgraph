@@ -1,0 +1,5 @@
+{
+  "network": "near-testnet",
+  "contract": "mock-proposal.testnet",
+  "startBlock": 197937630
+}
