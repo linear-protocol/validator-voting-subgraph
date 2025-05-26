@@ -11,12 +11,16 @@ async function main() {
 }
 
 async function runServer() {
+  console.log('====start======');
   const config = await getConfig();
+  console.log('====start create server======');
   const server = createHTTPServer({
     router: t.router({
       getValidators: getValidatorsProcedure,
     }),
     middleware: cors(),
   });
+  console.log('====end create server======');
   server.listen(config.port);
+  console.log('====end======');
 }
