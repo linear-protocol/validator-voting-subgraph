@@ -10,16 +10,12 @@ async function main() {
   await runServer();
 }
 
-function getApp() {
-  return t.router({
-    getValidators: getValidatorsProcedure,
-  });
-}
-
 async function runServer() {
   const config = await getConfig();
   const server = createHTTPServer({
-    router: getApp(),
+    router: t.router({
+      getValidators: getValidatorsProcedure,
+    }),
     middleware: cors(),
   });
   server.listen(config.port);

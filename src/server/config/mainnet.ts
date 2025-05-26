@@ -5,7 +5,7 @@ const config: Config = {
   networkId: 'mainnet',
   nodeUrl: optionalEnv('NEAR_RPC') || 'https://rpc.mainnet.near.org',
   poolDetailContractId: 'pool-details.near',
-  subgraphApiUrl: '',
+  subgraphApiUrl: '', // TODO
   port: 3000,
 };
 
