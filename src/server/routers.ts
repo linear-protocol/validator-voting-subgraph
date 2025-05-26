@@ -11,6 +11,7 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
   return validators.map((validator) => {
     return {
       ...validator,
+      lastVoteTimestamp: Number(validator.lastVoteTimestamp),
       metadata: metadatas.find(
         (metadata) => metadata.accountId === validator.accountId,
       ),
