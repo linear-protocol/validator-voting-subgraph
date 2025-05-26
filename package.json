@@ -7,24 +7,35 @@
     "codegen": "graph codegen",
     "deploysubgraph": "env-cmd pnpm deploysubgraph:studio",
     "deploysubgraph:studio": "graph deploy ${SLUG} --deploy-key ${DEPLOY_KEY}",
-    "build": "graph build",
+    "build": "graph build && tsc",
+    "server:start": "node dist/index.js",
+    "server:testnet": "ENV=testnet node dist/index.js",
+    "server:mainnet": "ENV=mainnet node dist/index.js",
+    "server:dev:testnet": "ENV=testnet ts-node src/server/index.ts",
+    "server:dev:mainnet": "ENV=mainnet ts-node src/server/index.ts",
     "lint": "eslint '{src,examples}/**/*.ts' '*.mjs' --fix",
     "prettier": "prettier '{src,examples}/**/*.ts' '*.mjs' --write --list-different",
     "prepare": "husky"
   },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.97.1",
+    "@graphprotocol/graph-ts": "^0.38.1",
+    "@trpc/server": "^11.1.2",
+    "@urql/core": "^5.1.1",
+    "cors": "^2.8.5"
+  },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
+    "@types/cors": "^2.8.18",
+    "@types/node": "^20.17.12",
     "env-cmd": "^10.1.0",
     "eslint": "^9.23.0",
     "husky": "^9.1.6",
-    "mustache": "^4.2.0",
     "lint-staged": "^15.2.10",
+    "mustache": "^4.2.0",
     "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.27.0"
-  },
-  "dependencies": {
-    "@graphprotocol/graph-cli": "^0.97.1",
-    "@graphprotocol/graph-ts": "^0.38.1"
   }
 }
