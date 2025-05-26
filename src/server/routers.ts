@@ -18,7 +18,7 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
   });
 });
 
-const subgraphCache = new InMemoryCache<Validator[]>(60 * 60 * 1000, 60 * 1000);
+const subgraphCache = new InMemoryCache<Validator[]>(10 * 60 * 1000, 60 * 1000);
 
 async function getValidators() {
   let validators = subgraphCache.get('validators');
