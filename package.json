@@ -7,7 +7,7 @@
     "codegen": "graph codegen",
     "deploysubgraph": "env-cmd pnpm deploysubgraph:studio",
     "deploysubgraph:studio": "graph deploy ${SLUG} --deploy-key ${DEPLOY_KEY}",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "server:start": "node dist/index.js",
     "server:testnet": "ENV=testnet node dist/index.js",
     "server:mainnet": "ENV=mainnet node dist/index.js",
