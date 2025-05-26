@@ -2,8 +2,16 @@ export type Config = {
   networkId: string;
   nodeUrl: string;
   subgraphApiUrl: string;
-  poolDetailContractId: string;
+  poolDetailContractId?: string;
   port: number;
+};
+
+export type Validator = {
+  id: string;
+  accountId: string;
+  isVoted: boolean;
+  lastVoteTimestamp: string;
+  lastVoteReceiptHash: string;
 };
 
 export type ValidatorMetadata = {

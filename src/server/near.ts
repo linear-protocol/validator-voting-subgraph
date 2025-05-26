@@ -13,6 +13,10 @@ export async function initNear() {
 
 export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
   const config = await getConfig();
+  if (!config.poolDetailContractId) {
+    return [];
+  }
+
   const { near } = await initNear();
   const metadatas = (await near.connection.provider.callFunction(
     config.poolDetailContractId,
