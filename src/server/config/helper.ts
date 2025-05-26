@@ -12,3 +12,7 @@ export function requiredEnv(name: string): string {
     process.exit(1)
   );
 }
+
+export function optionalEnv(name: string): string | undefined {
+  return process.env[name];
+}
