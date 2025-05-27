@@ -2,8 +2,8 @@
   "scripts": {
     "deploy:testnet": "pnpm config:testnet && pnpm codegen && pnpm deploysubgraph",
     "deploy:mainnet": "pnpm config:mainnet && pnpm codegen && pnpm deploysubgraph",
-    "config:testnet": "mustache config/testnet.json subgraph.yaml.template > subgraph.yaml",
-    "config:mainnet": "mustache config/mainnet.json subgraph.yaml.template > subgraph.yaml",
+    "config:testnet": "mustache config/testnet.json subgraph.template.yaml > subgraph.yaml",
+    "config:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "codegen": "graph codegen",
     "deploysubgraph": "env-cmd pnpm deploysubgraph:studio",
     "deploysubgraph:studio": "graph deploy ${SLUG} --deploy-key ${DEPLOY_KEY}",
