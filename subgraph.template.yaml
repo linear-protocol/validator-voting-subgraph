@@ -1,0 +1,20 @@
+specVersion: 0.0.5
+description: validator voting subgraph
+repository: https://github.com/linear-protocol/validator-voting-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: near
+    name: receipts
+    network: {{network}}
+    source:
+      account: {{contract}}
+      startBlock: {{startBlock}}
+    mapping:
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mapping/index.ts
+      entities:
+        - Validator
+      receiptHandlers:
+        - handler: handleReceipt
