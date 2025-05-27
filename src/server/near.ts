@@ -1,6 +1,7 @@
 import { getConfig } from './config/helper';
 import { Near } from 'near-api-js';
 import { ValidatorMetadata } from './types';
+import { globalCache } from './InMemoryCache';
 
 export async function initNear() {
   const config = await getConfig();
@@ -17,8 +18,15 @@ export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
     return [];
   }
 
+  let metadatas = globalCache.get('validatorMetadatas') as
+    | ValidatorMetadata[]
+    | undefined;
+  if (metadatas) {
+    return metadatas;
+  }
+
   const { near } = await initNear();
-  const metadatas = (await near.connection.provider.callFunction(
+  const metadataRecord = (await near.connection.provider.callFunction(
     config.poolDetailContractId,
     'get_all_fields',
     {
@@ -26,10 +34,15 @@ export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
       limit: 1000,
     },
   )) as Record<string, ValidatorMetadata>;
-  return Object.keys(metadatas).map((accountId) => {
+
+  metadatas = Object.keys(metadataRecord).map((accountId) => {
     return {
-      ...metadatas[accountId],
+      ...metadataRecord[accountId],
       accountId,
     };
   });
+
+  globalCache.set('validatorMetadatas', metadatas);
+
+  return metadatas;
 }

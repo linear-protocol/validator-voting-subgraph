@@ -2,12 +2,14 @@ import { t } from './trpc';
 import { getSubgraphClient } from './subgraph';
 import { gql } from '@urql/core';
 import { getValidatorMetadatas } from './near';
-import { InMemoryCache } from './InMemoryCache';
+import { globalCache } from './InMemoryCache';
 import { Validator } from './types';
 
 export const getValidatorsProcedure = t.procedure.query(async () => {
-  const validators = await getValidators();
-  const metadatas = await getValidatorMetadatas();
+  const [validators, metadatas] = await Promise.all([
+    getValidators(),
+    getValidatorMetadatas(),
+  ]);
   return validators.map((validator) => {
     return {
       ...validator,
@@ -19,10 +21,8 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
   });
 });
 
-const subgraphCache = new InMemoryCache<Validator[]>(2 * 60 * 1000, 60 * 1000);
-
 async function getValidators() {
-  let validators = subgraphCache.get('validators');
+  let validators = globalCache.get('validators') as Validator[] | undefined;
   if (validators) {
     return validators;
   }
@@ -51,6 +51,6 @@ async function getValidators() {
     throw result.error;
   }
   validators = result.data!.validators;
-  subgraphCache.set('validators', validators);
+  globalCache.set('validators', validators);
   return validators;
 }
