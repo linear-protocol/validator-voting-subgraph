@@ -1,5 +1,5 @@
 {
   "network": "near-testnet",
-  "contract": "mock-proposal.testnet",
+  "contract": "reduce-inflation.testnet",
   "startBlock": 197937630
 }
