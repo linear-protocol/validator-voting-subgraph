@@ -7,7 +7,7 @@ async function getReceiptsPaged(
   accountId: string,
   method: string,
   cursor?: string,
-  pageSize?: number,
+  pageSize?: number, // MAX: 100
 ): Promise<GetReceiptResponseData> {
   const config = await getConfig();
 
@@ -38,7 +38,7 @@ export async function getReceipts(
       accountId,
       method,
       cursor,
-      25 * 5, // Note: Each increment of 25 will count towards rate limit. For example, per page 50 will use 2 credits.
+      25 * 4, // Note: Each increment of 25 will count towards rate limit. For example, per page 50 will use 2 credits.
     );
 
     txns.push(...response.txns);
