@@ -29,12 +29,14 @@ let nearBlocksValidators: Validator[] | undefined;
 async function getValidators(
   source: 'TheGraph' | 'NearBlocks' = 'NearBlocks',
 ): Promise<Validator[]> {
-  let validators = globalCache.get('validators') as Validator[] | undefined;
-  if (validators) {
-    return validators;
-  }
   if (source === 'TheGraph') {
+    let validators = globalCache.get('validators') as Validator[] | undefined;
+    if (validators) {
+      return validators;
+    }
     validators = await getValidatorsFromSubgraph();
+    globalCache.set('validators', validators);
+    return validators;
   } else {
     if (!nearBlocksFetcher) {
       const task = async () => {
@@ -46,13 +48,11 @@ async function getValidators(
       };
       setTimeout(task, 0); // Run immediately
       nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
-      validators = [];
+      return [];
     } else {
       return nearBlocksValidators ?? [];
     }
   }
-  globalCache.set('validators', validators);
-  return validators;
 }
 
 async function getValidatorsFromSubgraph(): Promise<Validator[]> {

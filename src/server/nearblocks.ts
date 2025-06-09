@@ -38,7 +38,7 @@ export async function getReceipts(
       accountId,
       method,
       cursor,
-      25 * 4, // Note: Each increment of 25 will count towards rate limit. For example, per page 50 will use 2 credits.
+      25, // Note: Each increment of 25 will count towards rate limit. For example, per page 50 will use 2 credits.
     );
 
     txns.push(...response.txns);
@@ -49,7 +49,7 @@ export async function getReceipts(
       break;
     }
 
-    await sleep(60 * 1000); // resolve query limit
+    await sleep(10 * 1000); // resolve query limit
   }
 
   return {
