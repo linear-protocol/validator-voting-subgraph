@@ -27,7 +27,7 @@ let nearBlocksFetcher: NodeJS.Timeout | undefined;
 let nearBlocksValidators: Validator[] | undefined;
 
 async function getValidators(
-  source: 'TheGraph' | 'NearBlocks' = 'TheGraph',
+  source: 'TheGraph' | 'NearBlocks' = 'NearBlocks',
 ): Promise<Validator[]> {
   let validators = globalCache.get('validators') as Validator[] | undefined;
   if (validators) {
@@ -37,16 +37,15 @@ async function getValidators(
     validators = await getValidatorsFromSubgraph();
   } else {
     if (!nearBlocksFetcher) {
-      nearBlocksFetcher = setInterval(
-        async () => {
-          try {
-            nearBlocksValidators = await getValidatorsFromNearBlocks();
-          } catch (e: unknown) {
-            console.error(e);
-          }
-        },
-        30 * 60 * 1000,
-      );
+      const task = async () => {
+        try {
+          nearBlocksValidators = await getValidatorsFromNearBlocks();
+        } catch (e: unknown) {
+          console.error(e);
+        }
+      };
+      setTimeout(task, 0); // Run immediately
+      nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
       validators = [];
     } else {
       return nearBlocksValidators ?? [];
