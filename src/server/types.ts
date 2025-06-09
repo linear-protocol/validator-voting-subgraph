@@ -2,7 +2,9 @@ export type Config = {
   networkId: string;
   nodeUrl: string;
   subgraphApiUrl: string;
+  nearBlocksApiUrl: string;
   poolDetailContractId?: string;
+  votingContractId: string;
   port: number;
 };
 
@@ -26,4 +28,25 @@ export type ValidatorMetadata = {
   telegram?: string;
   twitter?: string;
   github?: string;
+};
+
+export type GetReceiptResponseData = {
+  cursor?: string;
+  txns: {
+    receipt_id: string;
+    transaction_hash: string;
+    predecessor_account_id: string;
+    receiver_account_id: string;
+    block: {
+      block_hash: string;
+      block_height: number;
+      block_timestamp: string;
+    };
+    actions: {
+      args: string;
+      action: string;
+      method: string;
+      deposit: string;
+    }[];
+  }[];
 };

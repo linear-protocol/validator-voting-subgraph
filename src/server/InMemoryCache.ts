@@ -42,4 +42,4 @@ type Cache<T> = {
   timestamp: number;
 };
 
-export const globalCache = new InMemoryCache(2 * 60 * 1000, 60 * 1000);
+export const globalCache = new InMemoryCache(30 * 60 * 1000, 60 * 1000);
