@@ -24,9 +24,10 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
 });
 
 let nearBlocksFetcher: NodeJS.Timeout | undefined;
-let nearBlocksValidators: Validator[] | undefined;
+const nearBlocksValidators: Record<string, Validator> = {};
+let nearBlocksLastTimestampNanosec: string | undefined;
 
-async function getValidators(
+export async function getValidators(
   source: 'TheGraph' | 'NearBlocks' = 'NearBlocks',
 ): Promise<Validator[]> {
   if (source === 'TheGraph') {
@@ -41,7 +42,14 @@ async function getValidators(
     if (!nearBlocksFetcher) {
       const task = async () => {
         try {
-          nearBlocksValidators = await getValidatorsFromNearBlocks();
+          const result = await getValidatorsFromNearBlocks(
+            nearBlocksLastTimestampNanosec,
+          );
+          updateValidators(
+            nearBlocksValidators,
+            Object.values(result.validators),
+          );
+          nearBlocksLastTimestampNanosec = result.lastTimestampNanosec;
         } catch (e: unknown) {
           console.error(e);
         }
@@ -50,7 +58,7 @@ async function getValidators(
       nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
       return [];
     } else {
-      return nearBlocksValidators ?? [];
+      return Object.values(nearBlocksValidators);
     }
   }
 }
@@ -81,9 +89,18 @@ async function getValidatorsFromSubgraph(): Promise<Validator[]> {
   return result.data!.validators;
 }
 
-async function getValidatorsFromNearBlocks(): Promise<Validator[]> {
+async function getValidatorsFromNearBlocks(
+  afterTimestampNanosec?: string,
+): Promise<{
+  validators: Record<string, Validator>;
+  lastTimestampNanosec: string;
+}> {
   const config = await getConfig();
-  const { txns } = await getReceipts(config.votingContractId, 'vote');
+  const { txns } = await getReceipts(
+    config.votingContractId,
+    'vote',
+    afterTimestampNanosec,
+  );
   const validators: Record<string, Validator> = {};
   for (const txn of txns) {
     const validatorAccountId = txn.predecessor_account_id;
@@ -105,5 +122,14 @@ async function getValidatorsFromNearBlocks(): Promise<Validator[]> {
       ).toString(),
     };
   }
-  return Object.values(validators);
+  return {
+    validators,
+    lastTimestampNanosec: txns[0].block.block_timestamp,
+  };
+}
+
+function updateValidators(dst: Record<string, Validator>, src: Validator[]) {
+  src.forEach((validator) => {
+    dst[validator.accountId] = validator;
+  });
 }
