@@ -42,14 +42,14 @@ export async function getValidators(
     if (!nearBlocksFetcher) {
       const task = async () => {
         try {
-          const result = await getValidatorsFromNearBlocks(
+          const update = await getValidatorsFromNearBlocks(
             nearBlocksLastTimestampNanosec,
           );
           nearBlocksValidators = mergeValidators(
             nearBlocksValidators ?? {},
-            Object.values(result.validators),
+            Object.values(update.validators),
           );
-          nearBlocksLastTimestampNanosec = result.lastTimestampNanosec;
+          nearBlocksLastTimestampNanosec = update.lastTimestampNanosec;
         } catch (e: unknown) {
           console.error(e);
         }
