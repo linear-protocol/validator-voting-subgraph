@@ -8,6 +8,7 @@ async function getReceiptsPaged(
   method: string,
   cursor?: string,
   pageSize?: number, // MAX: 100
+  afterTimestampNanosec?: string,
 ): Promise<GetReceiptResponseData> {
   const config = await getConfig();
 
@@ -18,6 +19,7 @@ async function getReceiptsPaged(
         method,
         per_page: pageSize,
         cursor,
+        after_timestamp: afterTimestampNanosec,
       },
     },
   );
@@ -28,6 +30,7 @@ async function getReceiptsPaged(
 export async function getReceipts(
   accountId: string,
   method: string,
+  afterTimestampNanosec?: string,
 ): Promise<GetReceiptResponseData> {
   const txns: GetReceiptResponseData['txns'] = [];
 
@@ -39,6 +42,7 @@ export async function getReceipts(
       method,
       cursor,
       25, // Note: Each increment of 25 will count towards rate limit. For example, per page 50 will use 2 credits.
+      afterTimestampNanosec,
     );
 
     txns.push(...response.txns);
