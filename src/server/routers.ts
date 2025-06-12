@@ -24,7 +24,7 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
 });
 
 let nearBlocksFetcher: NodeJS.Timeout | undefined;
-let nearBlocksValidators: Validator[] | undefined;
+let nearBlocksValidators: Record<string, Validator> | undefined;
 let nearBlocksLastTimestampNanosec: string | undefined;
 
 export async function getValidators(
@@ -45,7 +45,10 @@ export async function getValidators(
           const result = await getValidatorsFromNearBlocks(
             nearBlocksLastTimestampNanosec,
           );
-          nearBlocksValidators = result.validators;
+          nearBlocksValidators = mergeValidators(
+            nearBlocksValidators ?? {},
+            Object.values(result.validators),
+          );
           nearBlocksLastTimestampNanosec = result.lastTimestampNanosec;
         } catch (e: unknown) {
           console.error(e);
@@ -55,7 +58,7 @@ export async function getValidators(
       nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
       return [];
     } else {
-      return nearBlocksValidators ?? [];
+      return Object.values(nearBlocksValidators ?? {});
     }
   }
 }
@@ -89,7 +92,7 @@ async function getValidatorsFromSubgraph(): Promise<Validator[]> {
 async function getValidatorsFromNearBlocks(
   afterTimestampNanosec?: string,
 ): Promise<{
-  validators: Validator[];
+  validators: Record<string, Validator>;
   lastTimestampNanosec: string;
 }> {
   const config = await getConfig();
@@ -120,7 +123,18 @@ async function getValidatorsFromNearBlocks(
     };
   }
   return {
-    validators: Object.values(validators),
+    validators,
     lastTimestampNanosec: txns[0].block.block_timestamp,
   };
+}
+
+function mergeValidators(
+  origin: Record<string, Validator>,
+  v: Validator[],
+): Record<string, Validator> {
+  const result = { ...origin };
+  v.forEach((validator) => {
+    result[validator.accountId] = validator;
+  });
+  return result;
 }
