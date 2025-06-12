@@ -24,7 +24,7 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
 });
 
 let nearBlocksFetcher: NodeJS.Timeout | undefined;
-let nearBlocksValidators: Record<string, Validator> | undefined;
+const nearBlocksValidators: Record<string, Validator> = {};
 let nearBlocksLastTimestampNanosec: string | undefined;
 
 export async function getValidators(
@@ -42,14 +42,14 @@ export async function getValidators(
     if (!nearBlocksFetcher) {
       const task = async () => {
         try {
-          const update = await getValidatorsFromNearBlocks(
+          const result = await getValidatorsFromNearBlocks(
             nearBlocksLastTimestampNanosec,
           );
-          nearBlocksValidators = mergeValidators(
-            nearBlocksValidators ?? {},
-            Object.values(update.validators),
+          updateValidators(
+            nearBlocksValidators,
+            Object.values(result.validators),
           );
-          nearBlocksLastTimestampNanosec = update.lastTimestampNanosec;
+          nearBlocksLastTimestampNanosec = result.lastTimestampNanosec;
         } catch (e: unknown) {
           console.error(e);
         }
@@ -58,7 +58,7 @@ export async function getValidators(
       nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
       return [];
     } else {
-      return Object.values(nearBlocksValidators ?? {});
+      return Object.values(nearBlocksValidators);
     }
   }
 }
@@ -128,13 +128,8 @@ async function getValidatorsFromNearBlocks(
   };
 }
 
-function mergeValidators(
-  origin: Record<string, Validator>,
-  v: Validator[],
-): Record<string, Validator> {
-  const result = { ...origin };
-  v.forEach((validator) => {
-    result[validator.accountId] = validator;
+function updateValidators(dst: Record<string, Validator>, src: Validator[]) {
+  src.forEach((validator) => {
+    dst[validator.accountId] = validator;
   });
-  return result;
 }
