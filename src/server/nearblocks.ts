@@ -19,6 +19,7 @@ async function getReceiptsPaged(
         method,
         per_page: pageSize,
         cursor,
+        order: 'desc', // by timestamp
         after_timestamp: afterTimestampNanosec,
       },
     },
