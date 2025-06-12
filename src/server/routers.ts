@@ -4,6 +4,8 @@ import { gql } from '@urql/core';
 import { getValidatorMetadatas } from './near';
 import { globalCache } from './InMemoryCache';
 import { Validator } from './types';
+import { getReceipts } from './nearblocks';
+import { getConfig } from './config/helper';
 
 export const getValidatorsProcedure = t.procedure.query(async () => {
   const [validators, metadatas] = await Promise.all([
@@ -21,12 +23,39 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
   });
 });
 
-async function getValidators() {
-  let validators = globalCache.get('validators') as Validator[] | undefined;
-  if (validators) {
-    return validators;
-  }
+let nearBlocksFetcher: NodeJS.Timeout | undefined;
+let nearBlocksValidators: Validator[] | undefined;
 
+async function getValidators(
+  source: 'TheGraph' | 'NearBlocks' = 'NearBlocks',
+): Promise<Validator[]> {
+  if (source === 'TheGraph') {
+    let validators = globalCache.get('validators') as Validator[] | undefined;
+    if (validators) {
+      return validators;
+    }
+    validators = await getValidatorsFromSubgraph();
+    globalCache.set('validators', validators);
+    return validators;
+  } else {
+    if (!nearBlocksFetcher) {
+      const task = async () => {
+        try {
+          nearBlocksValidators = await getValidatorsFromNearBlocks();
+        } catch (e: unknown) {
+          console.error(e);
+        }
+      };
+      setTimeout(task, 0); // Run immediately
+      nearBlocksFetcher = setInterval(task, 30 * 60 * 1000);
+      return [];
+    } else {
+      return nearBlocksValidators ?? [];
+    }
+  }
+}
+
+async function getValidatorsFromSubgraph(): Promise<Validator[]> {
   const client = await getSubgraphClient();
   const sql = gql<{
     validators: Validator[];
@@ -47,10 +76,34 @@ async function getValidators() {
   `;
   const result = await client.query(sql, {});
   if (result.error) {
-    console.log(result.error);
     throw result.error;
   }
-  validators = result.data!.validators;
-  globalCache.set('validators', validators);
-  return validators;
+  return result.data!.validators;
+}
+
+async function getValidatorsFromNearBlocks(): Promise<Validator[]> {
+  const config = await getConfig();
+  const { txns } = await getReceipts(config.votingContractId, 'vote');
+  const validators: Record<string, Validator> = {};
+  for (const txn of txns) {
+    const validatorAccountId = txn.predecessor_account_id;
+    if (validators[validatorAccountId]) {
+      continue;
+    }
+    const voteAction = txn.actions.find((action) => action.method === 'vote');
+    if (!voteAction) {
+      throw Error('Vote action not found');
+    }
+    const args: { is_vote: boolean } = JSON.parse(voteAction.args);
+    validators[validatorAccountId] = {
+      id: validatorAccountId,
+      accountId: validatorAccountId,
+      isVoted: args.is_vote,
+      lastVoteReceiptHash: txn.receipt_id,
+      lastVoteTimestamp: (
+        BigInt(txn.block.block_timestamp) / 1_000_000n
+      ).toString(),
+    };
+  }
+  return Object.values(validators);
 }

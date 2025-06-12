@@ -6,6 +6,8 @@ const config: Config = {
   nodeUrl: optionalEnv('NEAR_RPC') || 'https://neart.lava.build',
   subgraphApiUrl:
     'https://api.studio.thegraph.com/query/112225/validator-voting-testnet/v0.0.2',
+  nearBlocksApiUrl: 'https://api-testnet.nearblocks.io/v2',
+  votingContractId: 'reduce-inflation.testnet',
   port: Number(requiredEnv('PORT')),
 };
 
