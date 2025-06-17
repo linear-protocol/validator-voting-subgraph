@@ -28,7 +28,7 @@ const nearBlocksValidators: Record<string, Validator> = {};
 let nearBlocksLastTimestampNanosec: string | undefined;
 
 export async function getValidators(
-  source: 'TheGraph' | 'NearBlocks' = 'NearBlocks',
+  source: 'TheGraph' | 'NearBlocks' = 'TheGraph',
 ): Promise<Validator[]> {
   if (source === 'TheGraph') {
     let validators = globalCache.get('validators') as Validator[] | undefined;
