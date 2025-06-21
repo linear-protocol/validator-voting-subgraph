@@ -1,15 +1,14 @@
 import { getConfig } from './config/helper';
-import { Near } from 'near-api-js';
+import { JsonRpcProvider } from '@near-js/providers';
 import { ValidatorMetadata } from './types';
 import { globalCache } from './InMemoryCache';
 
 export async function initNear() {
   const config = await getConfig();
-  const near = new Near({
-    networkId: config.networkId,
-    nodeUrl: config.nodeUrl,
+  const nearRpc = new JsonRpcProvider({
+    url: config.nodeUrl,
   });
-  return { near };
+  return { nearRpc };
 }
 
 export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
@@ -25,8 +24,8 @@ export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
     return metadatas;
   }
 
-  const { near } = await initNear();
-  const metadataRecord = (await near.connection.provider.callFunction(
+  const { nearRpc } = await initNear();
+  const metadataRecord = (await nearRpc.callFunction(
     config.poolDetailContractId,
     'get_all_fields',
     {
