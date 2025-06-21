@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.38.1",
-    "@near-js/accounts": "^2.1.0",
     "@near-js/client": "^2.1.0",
     "@near-js/providers": "^2.1.0",
     "@trpc/server": "^11.1.2",

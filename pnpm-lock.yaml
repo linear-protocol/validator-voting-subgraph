@@ -11,9 +11,6 @@ importers:
       '@graphprotocol/graph-ts':
         specifier: ^0.38.1
         version: 0.38.1
-      '@near-js/accounts':
-        specifier: ^2.1.0
-        version: 2.1.0(cqstacmodyd2loey4dgli4xcyi)
       '@near-js/client':
         specifier: ^2.1.0
         version: 2.1.0(opvceej744hoduksezqd24n4sa)
