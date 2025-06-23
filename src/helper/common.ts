@@ -40,7 +40,6 @@ export function getValidatorOrDefault(accountId: string): Validator {
   if (!account) {
     account = new Validator(accountId);
     account.accountId = accountId;
-    account.isVoted = false;
     account.lastVoteTimestamp = BigInt.zero();
   }
   return account;
@@ -48,12 +47,12 @@ export function getValidatorOrDefault(accountId: string): Validator {
 
 export function saveValidator(
   accountId: string,
-  isVoted: boolean,
+  choice: string,
   lastVoteTimestamp: u64,
   lastVoteReceiptHash: Bytes,
 ): void {
   const validator = getValidatorOrDefault(accountId);
-  validator.isVoted = isVoted;
+  validator.choice = choice;
   validator.lastVoteTimestamp = BigInt.fromU64(lastVoteTimestamp);
   validator.lastVoteReceiptHash = lastVoteReceiptHash.toBase58();
   validator.save();

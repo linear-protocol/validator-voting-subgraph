@@ -1,6 +1,6 @@
 import { json, near } from '@graphprotocol/graph-ts';
 import { EVENT_PREFIX, transformReceipt } from '../helper/common';
-import { handleVotedEvent, handleVoteWithdrawnEvent } from './handlers';
+import { handleVotedEvent } from './handlers';
 
 export function handleReceipt(receipt: near.ReceiptWithOutcome): void {
   handleEvents(receipt);
@@ -21,8 +21,6 @@ export function handleEvents(receipt: near.ReceiptWithOutcome): void {
 
     if (eventName == 'voted') {
       handleVotedEvent(eventData, tReceipt);
-    } else if (eventName == 'vote_withdrawn') {
-      handleVoteWithdrawnEvent(eventData, tReceipt);
     }
   }
 }
