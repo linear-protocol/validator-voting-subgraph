@@ -8,17 +8,7 @@ export function handleVotedEvent(
   for (let i = 0; i < eventData.length; i++) {
     const eachEventData = eventData[i].toObject();
     const accountId = eachEventData.mustGet('validator_id').toString();
-    saveValidator(accountId, true, receipt.timestamp, receipt.receiptHash);
-  }
-}
-
-export function handleVoteWithdrawnEvent(
-  eventData: JSONValue[],
-  receipt: Receipt,
-): void {
-  for (let i = 0; i < eventData.length; i++) {
-    const eachEventData = eventData[i].toObject();
-    const accountId = eachEventData.mustGet('validator_id').toString();
-    saveValidator(accountId, false, receipt.timestamp, receipt.receiptHash);
+    const choice = eachEventData.mustGet('choice').toString();
+    saveValidator(accountId, choice, receipt.timestamp, receipt.receiptHash);
   }
 }

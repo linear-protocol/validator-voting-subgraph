@@ -76,7 +76,7 @@ async function getValidatorsFromSubgraph(): Promise<Validator[]> {
       ) {
         id
         accountId
-        isVoted
+        choice
         lastVoteTimestamp
         lastVoteReceiptHash
       }
@@ -103,19 +103,23 @@ async function getValidatorsFromNearBlocks(
   );
   const validators: Record<string, Validator> = {};
   for (const txn of txns) {
-    const validatorAccountId = txn.predecessor_account_id;
-    if (validators[validatorAccountId]) {
-      continue;
-    }
     const voteAction = txn.actions.find((action) => action.method === 'vote');
     if (!voteAction) {
       throw Error('Vote action not found');
     }
-    const args: { is_vote: boolean } = JSON.parse(voteAction.args);
+
+    const args: { choice: 'yes' | 'no'; staking_pool_id: string } = JSON.parse(
+      voteAction.args,
+    );
+    const validatorAccountId = args.staking_pool_id;
+    if (validators[validatorAccountId]) {
+      continue;
+    }
+
     validators[validatorAccountId] = {
       id: validatorAccountId,
       accountId: validatorAccountId,
-      isVoted: args.is_vote,
+      choice: args.choice,
       lastVoteReceiptHash: txn.receipt_id,
       lastVoteTimestamp: (
         BigInt(txn.block.block_timestamp) / 1_000_000n

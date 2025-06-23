@@ -11,7 +11,7 @@ export type Config = {
 export type Validator = {
   id: string;
   accountId: string;
-  isVoted: boolean;
+  choice: 'yes' | 'no';
   lastVoteTimestamp: string;
   lastVoteReceiptHash: string;
 };
