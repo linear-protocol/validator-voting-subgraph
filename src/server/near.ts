@@ -45,3 +45,15 @@ export async function getValidatorMetadatas(): Promise<ValidatorMetadata[]> {
 
   return metadatas;
 }
+
+export async function getValidatorTotalStakedBalance(
+  accountId: string,
+): Promise<string> {
+  const { nearRpc } = await initNear();
+  const balance = await nearRpc.callFunction(
+    accountId,
+    'get_total_staked_balance',
+    {},
+  );
+  return balance as string;
+}
