@@ -1,8 +1,7 @@
 import { t } from './trpc';
 import { getSubgraphClient } from './subgraph';
 import { gql } from '@urql/core';
-import { getValidatorMetadatas } from './near';
-import { globalCache } from './InMemoryCache';
+import { getValidatorMetadatas, getValidatorTotalStakedBalance } from './near';
 import { Validator } from './types';
 import { getReceipts } from './nearblocks';
 import { getConfig } from './config/helper';
@@ -23,6 +22,12 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
   });
 });
 
+let subGraphFetcher: NodeJS.Timeout | undefined;
+const subgraphValidators: Record<
+  string,
+  Validator & { totalStakedBalance: string }
+> = {};
+
 let nearBlocksFetcher: NodeJS.Timeout | undefined;
 const nearBlocksValidators: Record<string, Validator> = {};
 let nearBlocksLastTimestampNanosec: string | undefined;
@@ -31,13 +36,21 @@ export async function getValidators(
   source: 'TheGraph' | 'NearBlocks' = 'TheGraph',
 ): Promise<Validator[]> {
   if (source === 'TheGraph') {
-    let validators = globalCache.get('validators') as Validator[] | undefined;
-    if (validators) {
-      return validators;
+    if (!subGraphFetcher) {
+      const task = async () => {
+        try {
+          const validators = await getValidatorsFromSubgraph();
+          updateValidators(subgraphValidators, Object.values(validators));
+        } catch (e: unknown) {
+          console.error(e);
+        }
+      };
+      setTimeout(task, 0); // Run immediately
+      subGraphFetcher = setInterval(task, 30 * 60 * 1000);
+      return [];
+    } else {
+      return Object.values(subgraphValidators);
     }
-    validators = await getValidatorsFromSubgraph();
-    globalCache.set('validators', validators);
-    return validators;
   } else {
     if (!nearBlocksFetcher) {
       const task = async () => {
@@ -63,7 +76,9 @@ export async function getValidators(
   }
 }
 
-async function getValidatorsFromSubgraph(): Promise<Validator[]> {
+async function getValidatorsFromSubgraph(): Promise<
+  (Validator & { totalStakedBalance: string })[]
+> {
   const client = await getSubgraphClient();
   const sql = gql<{
     validators: Validator[];
@@ -86,7 +101,16 @@ async function getValidatorsFromSubgraph(): Promise<Validator[]> {
   if (result.error) {
     throw result.error;
   }
-  return result.data!.validators;
+  const validators = [];
+  for (const validator of result.data!.validators) {
+    validators.push({
+      ...validator,
+      totalStakedBalance: await getValidatorTotalStakedBalance(
+        validator.accountId,
+      ),
+    });
+  }
+  return validators;
 }
 
 async function getValidatorsFromNearBlocks(
