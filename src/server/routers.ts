@@ -46,7 +46,7 @@ export async function getValidators(
         }
       };
       setTimeout(task, 0); // Run immediately
-      subGraphFetcher = setInterval(task, 30 * 60 * 1000);
+      subGraphFetcher = setInterval(task, 5 * 60 * 1000);
       return [];
     } else {
       return Object.values(subgraphValidators);
