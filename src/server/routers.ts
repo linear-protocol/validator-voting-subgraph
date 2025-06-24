@@ -112,7 +112,7 @@ async function getValidatorsFromSubgraph(): Promise<Validator[]> {
       ) {
         id
         accountId
-        choice
+        vote
         lastVoteTimestamp
         lastVoteReceiptHash
       }
@@ -181,7 +181,7 @@ function updateValidatorsWithBalance(
   src.forEach((validator) => {
     const oldValidator = dst[validator.accountId];
     dst[validator.accountId] = {
-      totalStakedBalance: oldValidator.totalStakedBalance,
+      totalStakedBalance: oldValidator?.totalStakedBalance,
       ...validator,
     };
   });
