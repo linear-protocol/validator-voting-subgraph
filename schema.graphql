@@ -1,7 +1,7 @@
 type Validator @entity(immutable: false) {
    id: ID!
    accountId: String!
-   choice: String
+   vote: String
    lastVoteTimestamp: BigInt!
    lastVoteReceiptHash: String
 }

@@ -25,8 +25,9 @@ export const getValidatorsProcedure = t.procedure.query(async () => {
 let subGraphFetcher: NodeJS.Timeout | undefined;
 const subgraphValidators: Record<
   string,
-  Validator & { totalStakedBalance: string }
+  Validator & { totalStakedBalance?: string }
 > = {};
+let lastTimestampOfFetchTotalStakedBalance = 0;
 
 let nearBlocksFetcher: NodeJS.Timeout | undefined;
 const nearBlocksValidators: Record<string, Validator> = {};
@@ -39,14 +40,36 @@ export async function getValidators(
     if (!subGraphFetcher) {
       const task = async () => {
         try {
-          const validators = await getValidatorsFromSubgraph();
-          updateValidators(subgraphValidators, Object.values(validators));
+          const validators: (Validator & { totalStakedBalance?: string })[] =
+            await getValidatorsFromSubgraph();
+
+          if (
+            Date.now() - lastTimestampOfFetchTotalStakedBalance >
+            60 * 60 * 1000
+          ) {
+            for (const validator of validators) {
+              validator.totalStakedBalance =
+                await getValidatorTotalStakedBalance(validator.accountId);
+            }
+            lastTimestampOfFetchTotalStakedBalance = Date.now();
+          } else {
+            for (const validator of validators) {
+              if (
+                !subgraphValidators[validator.accountId]?.totalStakedBalance
+              ) {
+                validator.totalStakedBalance =
+                  await getValidatorTotalStakedBalance(validator.accountId);
+              }
+            }
+          }
+
+          updateValidatorsWithBalance(subgraphValidators, validators);
         } catch (e: unknown) {
           console.error(e);
         }
       };
       setTimeout(task, 0); // Run immediately
-      subGraphFetcher = setInterval(task, 5 * 60 * 1000);
+      subGraphFetcher = setInterval(task, 60 * 1000);
       return [];
     } else {
       return Object.values(subgraphValidators);
@@ -76,9 +99,7 @@ export async function getValidators(
   }
 }
 
-async function getValidatorsFromSubgraph(): Promise<
-  (Validator & { totalStakedBalance: string })[]
-> {
+async function getValidatorsFromSubgraph(): Promise<Validator[]> {
   const client = await getSubgraphClient();
   const sql = gql<{
     validators: Validator[];
@@ -101,16 +122,7 @@ async function getValidatorsFromSubgraph(): Promise<
   if (result.error) {
     throw result.error;
   }
-  const validators = [];
-  for (const validator of result.data!.validators) {
-    validators.push({
-      ...validator,
-      totalStakedBalance: await getValidatorTotalStakedBalance(
-        validator.accountId,
-      ),
-    });
-  }
-  return validators;
+  return result.data!.validators;
 }
 
 async function getValidatorsFromNearBlocks(
@@ -159,5 +171,18 @@ async function getValidatorsFromNearBlocks(
 function updateValidators(dst: Record<string, Validator>, src: Validator[]) {
   src.forEach((validator) => {
     dst[validator.accountId] = validator;
+  });
+}
+
+function updateValidatorsWithBalance(
+  dst: Record<string, Validator & { totalStakedBalance?: string }>,
+  src: (Validator & { totalStakedBalance?: string })[],
+) {
+  src.forEach((validator) => {
+    const oldValidator = dst[validator.accountId];
+    dst[validator.accountId] = {
+      totalStakedBalance: oldValidator.totalStakedBalance,
+      ...validator,
+    };
   });
 }
