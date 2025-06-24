@@ -7,6 +7,7 @@ const config: Config = {
   subgraphApiUrl:
     optionalEnv('SUBGRAPH_API_URL') ||
     'https://api.studio.thegraph.com/query/112225/validator-voting-staging/v0.0.3',
+  subgraphAPiKey: optionalEnv('SUBGRAPH_API_KEY'),
   nearBlocksApiUrl: 'https://api.nearblocks.io/v2',
   poolDetailContractId: 'pool-details.near',
   votingContractId: 'mock-proposal.near',
