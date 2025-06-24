@@ -2,6 +2,7 @@ export type Config = {
   networkId: string;
   nodeUrl: string;
   subgraphApiUrl: string;
+  subgraphAPiKey?: string;
   nearBlocksApiUrl: string;
   poolDetailContractId?: string;
   votingContractId: string;
