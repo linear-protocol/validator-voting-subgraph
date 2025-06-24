@@ -47,12 +47,12 @@ export function getValidatorOrDefault(accountId: string): Validator {
 
 export function saveValidator(
   accountId: string,
-  choice: string,
+  vote: string,
   lastVoteTimestamp: u64,
   lastVoteReceiptHash: Bytes,
 ): void {
   const validator = getValidatorOrDefault(accountId);
-  validator.choice = choice;
+  validator.vote = vote;
   validator.lastVoteTimestamp = BigInt.fromU64(lastVoteTimestamp);
   validator.lastVoteReceiptHash = lastVoteReceiptHash.toBase58();
   validator.save();

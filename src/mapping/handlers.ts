@@ -8,7 +8,7 @@ export function handleVotedEvent(
   for (let i = 0; i < eventData.length; i++) {
     const eachEventData = eventData[i].toObject();
     const accountId = eachEventData.mustGet('validator_id').toString();
-    const choice = eachEventData.mustGet('choice').toString();
-    saveValidator(accountId, choice, receipt.timestamp, receipt.receiptHash);
+    const vote = eachEventData.mustGet('vote').toString();
+    saveValidator(accountId, vote, receipt.timestamp, receipt.receiptHash);
   }
 }
