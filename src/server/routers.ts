@@ -52,6 +52,15 @@ export async function getValidators(
                 await getValidatorTotalStakedBalance(validator.accountId);
             }
             lastTimestampOfFetchTotalStakedBalance = Date.now();
+          } else {
+            for (const validator of validators) {
+              if (
+                !subgraphValidators[validator.accountId]?.totalStakedBalance
+              ) {
+                validator.totalStakedBalance =
+                  await getValidatorTotalStakedBalance(validator.accountId);
+              }
+            }
           }
 
           updateValidatorsWithBalance(subgraphValidators, validators);
