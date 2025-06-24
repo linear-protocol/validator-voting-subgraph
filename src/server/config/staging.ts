@@ -5,7 +5,8 @@ const config: Config = {
   networkId: 'mainnet',
   nodeUrl: optionalEnv('NEAR_RPC') || 'https://near.lava.build',
   subgraphApiUrl:
-    'https://api.studio.thegraph.com/query/112225/validator-voting-staging/v0.0.2',
+    optionalEnv('SUBGRAPH_API_URL') ||
+    'https://api.studio.thegraph.com/query/112225/validator-voting-staging/v0.0.3',
   nearBlocksApiUrl: 'https://api.nearblocks.io/v2',
   poolDetailContractId: 'pool-details.near',
   votingContractId: 'mock-proposal.near',
