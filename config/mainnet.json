@@ -1,5 +1,5 @@
 {
   "network": "near-mainnet",
-  "contract": "",
-  "startBlock": 0
+  "contract": "reduce-inflation.near",
+  "startBlock": 152443111
 }
