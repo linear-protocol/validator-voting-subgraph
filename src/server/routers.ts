@@ -144,7 +144,7 @@ async function getValidatorsFromNearBlocks(
       throw Error('Vote action not found');
     }
 
-    const args: { choice: 'yes' | 'no'; staking_pool_id: string } = JSON.parse(
+    const args: { vote: 'yes' | 'no'; staking_pool_id: string } = JSON.parse(
       voteAction.args,
     );
     const validatorAccountId = args.staking_pool_id;
@@ -155,7 +155,7 @@ async function getValidatorsFromNearBlocks(
     validators[validatorAccountId] = {
       id: validatorAccountId,
       accountId: validatorAccountId,
-      choice: args.choice,
+      vote: args.vote,
       lastVoteReceiptHash: txn.receipt_id,
       lastVoteTimestamp: (
         BigInt(txn.block.block_timestamp) / 1_000_000n
