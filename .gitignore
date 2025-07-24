@@ -118,3 +118,5 @@ dataset/local
 build
 generated
 subgraph.yaml
+.env.*
+!.env.example

@@ -1,5 +1,5 @@
 {
   "network": "near-mainnet",
-  "contract": "mock-proposal.near",
-  "startBlock": 152402973
+  "contract": "test-proposal.near",
+  "startBlock": 156573568
 }
