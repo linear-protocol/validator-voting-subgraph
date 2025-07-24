@@ -10,7 +10,7 @@ const config: Config = {
   subgraphAPiKey: optionalEnv('SUBGRAPH_API_KEY'),
   nearBlocksApiUrl: 'https://api.nearblocks.io/v2',
   poolDetailContractId: 'pool-details.near',
-  votingContractId: 'mock-proposal.near',
+  votingContractId: 'test-proposal.near',
   port: Number(requiredEnv('PORT')),
 };
 
